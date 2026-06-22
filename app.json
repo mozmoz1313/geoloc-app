@@ -1,25 +1,31 @@
 {
   "expo": {
-    "name": "geoloc-app",
+    "name": "GeolocApp",
     "slug": "geoloc-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "ios": {
-      "supportsTablet": true
-    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "GeolocApp a besoin de ta position pour partager ta localisation.",
+          "locationAlwaysPermission": "GeolocApp a besoin de ta position en arrière-plan.",
+          "locationWhenInUsePermission": "GeolocApp a besoin de ta position."
+        }
+      ]
+    ],
     "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+      "package": "com.mozmoz1313.geolocapp",
+      "config": {
+        "googleMaps": {
+          "apiKey": "TA_CLE_GOOGLE_MAPS"
+        }
       },
-      "predictiveBackGestureEnabled": false
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION"
+      ]
     }
   }
 }
