@@ -1,21 +1,38 @@
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native'
 import MapView, { Marker } from 'react-native-maps'
+import { useEffect, useState } from 'react'
 import { useLocation } from '../hooks/useLocation'
+import { ecouterPosition } from '../services/location'
+
+type ProchPosition = {
+  latitude: number
+  longitude: number
+  user_id: string
+} | null
 
 export default function MapScreen() {
   const { position, erreur, chargement } = useLocation()
+  const [prochPosition, setProchPosition] = useState<ProchPosition>(null)
 
-  // Pendant le chargement du GPS
+  useEffect(() => {
+    // Écouter la position d'un proche en live
+    // Remplace USER_ID_DU_PROCHE par le vrai ID plus tard
+    const unsub = ecouterPosition('USER_ID_DU_PROCHE', (pos) => {
+      setProchPosition(pos)
+    })
+
+    return () => { unsub.unsubscribe() }
+  }, [])
+
   if (chargement) {
     return (
       <View style={styles.centre}>
         <ActivityIndicator size="large" color="#4f46e5" />
-        <Text style={styles.texte}>Récupération de ta position...</Text>
+        <Text style={styles.texte}>Récupération GPS...</Text>
       </View>
     )
   }
 
-  // Si erreur GPS
   if (erreur) {
     return (
       <View style={styles.centre}>
@@ -31,27 +48,38 @@ export default function MapScreen() {
         initialRegion={{
           latitude: position!.latitude,
           longitude: position!.longitude,
-          latitudeDelta: 0.01,  // zoom
+          latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         }}
       >
-        {/* Ton marqueur sur la carte */}
+        {/* Ta position */}
         <Marker
-          coordinate={{
-            latitude: position!.latitude,
-            longitude: position!.longitude,
-          }}
-          title="Ma position"
-          description="Mise à jour toutes les 5 min"
+          coordinate={position!}
+          title="Moi"
+          pinColor="#4f46e5"
         />
+
+        {/* Position du proche */}
+        {prochPosition && (
+          <Marker
+            coordinate={prochPosition}
+            title="Mon proche"
+            pinColor="#ff4444"
+          />
+        )}
+
       </MapView>
 
-      {/* Affichage des coordonnées */}
+      {/* Info en bas */}
       <View style={styles.infoBox}>
         <Text style={styles.infoTexte}>
-          📍 {position!.latitude.toFixed(6)}, {position!.longitude.toFixed(6)}
+          📍 {position!.latitude.toFixed(5)}, {position!.longitude.toFixed(5)}
+        </Text>
+        <Text style={styles.infoTexte}>
+          🔄 Mise à jour toutes les 5 min
         </Text>
       </View>
+
     </View>
   )
 }
@@ -86,9 +114,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
+    gap: 4,
   },
   infoTexte: {
     color: '#ffffff',
-    fontSize: 14,
+    fontSize: 13,
+    textAlign: 'center',
   },
 })
